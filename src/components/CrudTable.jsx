@@ -14,7 +14,11 @@ import {
   Modal, 
   Box, 
   TextField, 
-  Typography 
+  Typography,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 
 const style = {
@@ -29,8 +33,8 @@ const style = {
   p: 4,
 };
 
-function CrudTable({ collectionName, formFields, tableColumns }) {
-  const [data, setData] = useState([]);
+function CrudTable({ collectionName, formFields, tableColumns, initialData, onDataChange, onBeforeSubmit }) {
+  const [data, setData] = useState(initialData || []);
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentItem, setCurrentItem] = useState({});
@@ -39,13 +43,19 @@ function CrudTable({ collectionName, formFields, tableColumns }) {
   const collectionRef = collection(db, collectionName);
 
   const fetchData = async () => {
-    const snapshot = await getDocs(collectionRef);
-    setData(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    if (!initialData) {
+      const snapshot = await getDocs(collectionRef);
+      setData(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (initialData) {
+      setData(initialData);
+    } else {
+      fetchData();
+    }
+  }, [initialData]);
 
   const handleOpen = (item = null) => {
     if (item) {
@@ -65,25 +75,38 @@ function CrudTable({ collectionName, formFields, tableColumns }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    let itemToSave = { ...currentItem };
+    if (onBeforeSubmit) {
+      itemToSave = await onBeforeSubmit(itemToSave);
+    }
+
     if (isEditing) {
-      const itemDoc = doc(db, collectionName, currentItem.id);
-      await updateDoc(itemDoc, currentItem);
+      const itemDoc = doc(db, collectionName, itemToSave.id);
+      await updateDoc(itemDoc, itemToSave);
     } else {
-      await addDoc(collectionRef, { ...currentItem, createdAt: serverTimestamp() });
+      await addDoc(collectionRef, { ...itemToSave, createdAt: serverTimestamp() });
     }
     handleClose();
-    fetchData();
+    if (onDataChange) {
+      onDataChange();
+    } else {
+      fetchData();
+    }
   };
 
   const handleDelete = async (id) => {
     const itemDoc = doc(db, collectionName, id);
     await deleteDoc(itemDoc);
-    fetchData();
+    if (onDataChange) {
+      onDataChange();
+    } else {
+      fetchData();
+    }
   };
 
   return (
     <div>
-      <Button variant="contained" onClick={() => handleOpen()}>{t(`add_${collectionName.slice(0, -1)}`)}</Button>
+      <Button variant="contained" onClick={() => handleOpen()} sx={{mb: 2}}>{t(`add_${collectionName.slice(0, -1)}`)}</Button>
       <Modal
         open={open}
         onClose={handleClose}
@@ -91,16 +114,33 @@ function CrudTable({ collectionName, formFields, tableColumns }) {
         <Box sx={style}>
           <Typography variant="h6">{t(isEditing ? `edit_${collectionName.slice(0, -1)}` : `add_${collectionName.slice(0, -1)}`)}</Typography>
           <form onSubmit={handleSubmit}>
-            {formFields.map((field) => (
-              <TextField
-                key={field.name}
-                label={t(field.label)}
-                fullWidth
-                margin="normal"
-                value={currentItem[field.name] || ''}
-                onChange={(e) => setCurrentItem({ ...currentItem, [field.name]: e.target.value })}
-              />
-            ))}
+            {formFields.map((field) => {
+              if (field.type === 'select') {
+                return (
+                  <FormControl fullWidth margin="normal" key={field.name}>
+                    <InputLabel>{t(field.label)}</InputLabel>
+                    <Select
+                      value={currentItem[field.name] || ''}
+                      onChange={(e) => setCurrentItem({ ...currentItem, [field.name]: e.target.value })}
+                    >
+                      {field.options.map(option => (
+                        <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )
+              }
+              return (
+                <TextField
+                  key={field.name}
+                  label={t(field.label)}
+                  fullWidth
+                  margin="normal"
+                  value={currentItem[field.name] || ''}
+                  onChange={(e) => setCurrentItem({ ...currentItem, [field.name]: e.target.value })}
+                />
+              )
+            })}
             <Button type="submit" variant="contained" color="primary">{t('save')}</Button>
           </form>
         </Box>
@@ -119,7 +159,7 @@ function CrudTable({ collectionName, formFields, tableColumns }) {
             {data.map((item) => (
               <TableRow key={item.id}>
                 {tableColumns.map((col) => (
-                  <TableCell key={col.key}>{item[col.key]}</TableCell>
+                  <TableCell key={col.key}>{col.render ? col.render(item[col.key], item) : item[col.key]}</TableCell>
                 ))}
                 <TableCell>
                   <Button onClick={() => handleOpen(item)}>{t('edit')}</Button>

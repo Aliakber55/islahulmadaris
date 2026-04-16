@@ -1,53 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { db } from '../services/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import CrudTable from '../components/CrudTable';
 import {
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Modal,
-  Box,
-  TextField,
-  Typography,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  Typography
 } from '@mui/material';
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
-
 function Students() {
-  const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
   const [madaris, setMadaris] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState({ name: '', fatherName: '', madrasaId: '', classId: '' });
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [selectedMadrasa, setSelectedMadrasa] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
   const { t } = useTranslation();
 
-  const studentsCollectionRef = collection(db, 'students');
   const madarisCollectionRef = collection(db, 'madaris');
   const classesCollectionRef = collection(db, 'classes');
+  const studentsCollectionRef = collection(db, 'students');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -74,48 +49,7 @@ function Students() {
     setFilteredStudents(filtered);
   }, [selectedMadrasa, selectedClass, students]);
 
-
-  const handleOpen = (student = null) => {
-    if (student) {
-      setIsEditing(true);
-      setCurrentStudent(student);
-    } else {
-      setIsEditing(false);
-      setCurrentStudent({ name: '', fatherName: '', madrasaId: '', classId: '' });
-    }
-    setOpen(true);
-  };
-
-  const handleClose = () => setOpen(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (isEditing) {
-      const studentDoc = doc(db, 'students', currentStudent.id);
-      await updateDoc(studentDoc, currentStudent);
-    } else {
-      const q = query(studentsCollectionRef, where('madrasaId', '==', currentStudent.madrasaId));
-      const querySnapshot = await getDocs(q);
-      const studentCount = querySnapshot.size;
-      const rollNo = `${currentStudent.madrasaId}-${String(studentCount + 1).padStart(3, '0')}`;
-
-      await addDoc(studentsCollectionRef, { ...currentStudent, rollNo, createdAt: serverTimestamp() });
-    }
-
-    const studentsData = await getDocs(studentsCollectionRef);
-    setStudents(studentsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-    handleClose();
-  };
-
-  const handleDelete = async (id) => {
-    const studentDoc = doc(db, 'students', id);
-    await deleteDoc(studentDoc);
-    const studentsData = await getDocs(studentsCollectionRef);
-    setStudents(studentsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-  };
-
- const getMadrasaName = (madrasaId) => {
+  const getMadrasaName = (madrasaId) => {
     const madrasa = madaris.find(m => m.id === madrasaId);
     return madrasa ? madrasa.name : 'Unknown';
   }
@@ -125,10 +59,50 @@ function Students() {
     return aClass ? aClass.name : 'Unknown';
   }
 
+  const formFields = [
+    { name: 'name', label: 'name' },
+    { name: 'fatherName', label: 'father_name' },
+    {
+      name: 'madrasaId',
+      label: 'madrasa',
+      type: 'select',
+      options: madaris.map(m => ({ value: m.id, label: m.name }))
+    },
+    {
+      name: 'classId',
+      label: 'class',
+      type: 'select',
+      options: classes.map(c => ({ value: c.id, label: c.name }))
+    },
+  ];
+
+  const tableColumns = [
+    { key: 'rollNo', label: 'roll_no' },
+    { key: 'name', label: 'name' },
+    { key: 'fatherName', label: 'father_name' },
+    { key: 'madrasaId', label: 'madrasa', render: (madrasaId) => getMadrasaName(madrasaId) },
+    { key: 'classId', label: 'class', render: (classId) => getClassName(classId) },
+  ];
+
+  const handleDataChange = async () => {
+    const studentsData = await getDocs(studentsCollectionRef);
+    setStudents(studentsData.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+  };
+
+  const onBeforeSubmit = async (item) => {
+    if (!item.id) { // Only generate roll number for new students
+      const q = query(studentsCollectionRef, where('madrasaId', '==', item.madrasaId));
+      const querySnapshot = await getDocs(q);
+      const studentCount = querySnapshot.size;
+      item.rollNo = `${item.madrasaId}-${String(studentCount + 1).padStart(3, '0')}`;
+    }
+    return item;
+  }
+
   return (
     <div>
       <Typography variant="h4">{t('students')}</Typography>
-       <FormControl style={{ minWidth: 120, marginRight: '10px' }}>
+      <FormControl style={{ minWidth: 120, marginRight: '10px' }}>
         <InputLabel>{t('filter_by_madrasa')}</InputLabel>
         <Select
           value={selectedMadrasa}
@@ -141,7 +115,7 @@ function Students() {
         </Select>
       </FormControl>
 
-       <FormControl style={{ minWidth: 120 }}>
+      <FormControl style={{ minWidth: 120 }}>
         <InputLabel>{t('filter_by_class')}</InputLabel>
         <Select
           value={selectedClass}
@@ -154,70 +128,14 @@ function Students() {
         </Select>
       </FormControl>
 
-      <Button variant="contained" onClick={() => handleOpen()} style={{ float: 'right' }}>{t('add_student')}</Button>
-
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <Typography variant="h6">{t(isEditing ? 'edit_student' : 'add_student')}</Typography>
-          <form onSubmit={handleSubmit}>
-            <TextField label={t('name')} fullWidth margin="normal" value={currentStudent.name} onChange={(e) => setCurrentStudent({ ...currentStudent, name: e.target.value })} />
-            <TextField label={t('father_name')} fullWidth margin="normal" value={currentStudent.fatherName} onChange={(e) => setCurrentStudent({ ...currentStudent, fatherName: e.target.value })} />
-            <FormControl fullWidth margin="normal">
-              <InputLabel>{t('madrasa')}</InputLabel>
-              <Select
-                value={currentStudent.madrasaId}
-                onChange={(e) => setCurrentStudent({ ...currentStudent, madrasaId: e.target.value })}
-              >
-                {madaris.map(madrasa => (
-                  <MenuItem key={madrasa.id} value={madrasa.id}>{madrasa.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth margin="normal">
-              <InputLabel>{t('class')}</InputLabel>
-              <Select
-                value={currentStudent.classId}
-                onChange={(e) => setCurrentStudent({ ...currentStudent, classId: e.target.value })}
-              >
-                {classes.map(aClass => (
-                  <MenuItem key={aClass.id} value={aClass.id}>{aClass.name}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <Button type="submit" variant="contained" color="primary">{t('save')}</Button>
-          </form>
-        </Box>
-      </Modal>
-
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('roll_no')}</TableCell>
-              <TableCell>{t('name')}</TableCell>
-              <TableCell>{t('father_name')}</TableCell>
-              <TableCell>{t('madrasa')}</TableCell>
-              <TableCell>{t('class')}</TableCell>
-              <TableCell>{t('actions')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>{student.rollNo}</TableCell>
-                <TableCell>{student.name}</TableCell>
-                <TableCell>{student.fatherName}</TableCell>
-                <TableCell>{getMadrasaName(student.madrasaId)}</TableCell>
-                <TableCell>{getClassName(student.classId)}</TableCell>
-                <TableCell>
-                  <Button onClick={() => handleOpen(student)}>{t('edit')}</Button>
-                  <Button onClick={() => handleDelete(student.id)}>{t('delete')}</Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <CrudTable
+        collectionName="students"
+        formFields={formFields}
+        tableColumns={tableColumns}
+        initialData={filteredStudents}
+        onDataChange={handleDataChange}
+        onBeforeSubmit={onBeforeSubmit}
+      />
     </div>
   );
 }
