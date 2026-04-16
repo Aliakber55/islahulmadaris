@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { db } from '../services/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, where } from 'firebase/firestore';
 import {
@@ -42,6 +43,7 @@ function Students() {
   const [currentStudent, setCurrentStudent] = useState({ name: '', fatherName: '', madrasaId: '', classId: '' });
   const [selectedMadrasa, setSelectedMadrasa] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
+  const { t } = useTranslation();
 
   const studentsCollectionRef = collection(db, 'students');
   const madarisCollectionRef = collection(db, 'madaris');
@@ -125,14 +127,14 @@ function Students() {
 
   return (
     <div>
-      <Typography variant="h4">Students</Typography>
+      <Typography variant="h4">{t('students')}</Typography>
        <FormControl style={{ minWidth: 120, marginRight: '10px' }}>
-        <InputLabel>Filter by Madrasa</InputLabel>
+        <InputLabel>{t('filter_by_madrasa')}</InputLabel>
         <Select
           value={selectedMadrasa}
           onChange={e => setSelectedMadrasa(e.target.value)}
         >
-          <MenuItem value=""><em>None</em></MenuItem>
+          <MenuItem value=""><em>{t('none')}</em></MenuItem>
           {madaris.map(madrasa => (
             <MenuItem key={madrasa.id} value={madrasa.id}>{madrasa.name}</MenuItem>
           ))}
@@ -140,28 +142,28 @@ function Students() {
       </FormControl>
 
        <FormControl style={{ minWidth: 120 }}>
-        <InputLabel>Filter by Class</InputLabel>
+        <InputLabel>{t('filter_by_class')}</InputLabel>
         <Select
           value={selectedClass}
           onChange={e => setSelectedClass(e.target.value)}
         >
-          <MenuItem value=""><em>None</em></MenuItem>
+          <MenuItem value=""><em>{t('none')}</em></MenuItem>
           {classes.map(aClass => (
             <MenuItem key={aClass.id} value={aClass.id}>{aClass.name}</MenuItem>
           ))}
         </Select>
       </FormControl>
 
-      <Button variant="contained" onClick={() => handleOpen()} style={{ float: 'right' }}>Add Student</Button>
+      <Button variant="contained" onClick={() => handleOpen()} style={{ float: 'right' }}>{t('add_student')}</Button>
 
       <Modal open={open} onClose={handleClose}>
         <Box sx={style}>
-          <Typography variant="h6">{isEditing ? 'Edit' : 'Add'} Student</Typography>
+          <Typography variant="h6">{t(isEditing ? 'edit_student' : 'add_student')}</Typography>
           <form onSubmit={handleSubmit}>
-            <TextField label="Name" fullWidth margin="normal" value={currentStudent.name} onChange={(e) => setCurrentStudent({ ...currentStudent, name: e.target.value })} />
-            <TextField label="Father Name" fullWidth margin="normal" value={currentStudent.fatherName} onChange={(e) => setCurrentStudent({ ...currentStudent, fatherName: e.target.value })} />
+            <TextField label={t('name')} fullWidth margin="normal" value={currentStudent.name} onChange={(e) => setCurrentStudent({ ...currentStudent, name: e.target.value })} />
+            <TextField label={t('father_name')} fullWidth margin="normal" value={currentStudent.fatherName} onChange={(e) => setCurrentStudent({ ...currentStudent, fatherName: e.target.value })} />
             <FormControl fullWidth margin="normal">
-              <InputLabel>Madrasa</InputLabel>
+              <InputLabel>{t('madrasa')}</InputLabel>
               <Select
                 value={currentStudent.madrasaId}
                 onChange={(e) => setCurrentStudent({ ...currentStudent, madrasaId: e.target.value })}
@@ -172,7 +174,7 @@ function Students() {
               </Select>
             </FormControl>
             <FormControl fullWidth margin="normal">
-              <InputLabel>Class</InputLabel>
+              <InputLabel>{t('class')}</InputLabel>
               <Select
                 value={currentStudent.classId}
                 onChange={(e) => setCurrentStudent({ ...currentStudent, classId: e.target.value })}
@@ -182,7 +184,7 @@ function Students() {
                 ))}
               </Select>
             </FormControl>
-            <Button type="submit" variant="contained" color="primary">Submit</Button>
+            <Button type="submit" variant="contained" color="primary">{t('save')}</Button>
           </form>
         </Box>
       </Modal>
@@ -191,12 +193,12 @@ function Students() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Roll No</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Father Name</TableCell>
-              <TableCell>Madrasa</TableCell>
-              <TableCell>Class</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>{t('roll_no')}</TableCell>
+              <TableCell>{t('name')}</TableCell>
+              <TableCell>{t('father_name')}</TableCell>
+              <TableCell>{t('madrasa')}</TableCell>
+              <TableCell>{t('class')}</TableCell>
+              <TableCell>{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -208,8 +210,8 @@ function Students() {
                 <TableCell>{getMadrasaName(student.madrasaId)}</TableCell>
                 <TableCell>{getClassName(student.classId)}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpen(student)}>Edit</Button>
-                  <Button onClick={() => handleDelete(student.id)}>Delete</Button>
+                  <Button onClick={() => handleOpen(student)}>{t('edit')}</Button>
+                  <Button onClick={() => handleDelete(student.id)}>{t('delete')}</Button>
                 </TableCell>
               </TableRow>
             ))}

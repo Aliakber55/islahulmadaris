@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { db } from '../services/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { 
@@ -33,6 +34,7 @@ function Classes() {
   const [open, setOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentClass, setCurrentClass] = useState({ name: '' });
+  const { t } = useTranslation();
 
   const classesCollectionRef = collection(db, 'classes');
 
@@ -84,22 +86,22 @@ function Classes() {
 
   return (
     <div>
-      <Button variant="contained" onClick={() => handleOpen()}>Add Class</Button>
+      <Button variant="contained" onClick={() => handleOpen()}>{t('add_class')}</Button>
       <Modal
         open={open}
         onClose={handleClose}
       >
         <Box sx={style}>
-          <Typography variant="h6">{isEditing ? 'Edit' : 'Add'} Class</Typography>
+          <Typography variant="h6">{t(isEditing ? 'edit_class' : 'add_class')}</Typography>
           <form onSubmit={handleSubmit}>
             <TextField
-              label="Name"
+              label={t('name')}
               fullWidth
               margin="normal"
               value={currentClass.name}
               onChange={(e) => setCurrentClass({ ...currentClass, name: e.target.value })}
             />
-            <Button type="submit" variant="contained" color="primary">Submit</Button>
+            <Button type="submit" variant="contained" color="primary">{t('save')}</Button>
           </form>
         </Box>
       </Modal>
@@ -107,8 +109,8 @@ function Classes() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell>Actions</TableCell>
+              <TableCell>{t('name')}</TableCell>
+              <TableCell>{t('actions')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -116,8 +118,8 @@ function Classes() {
               <TableRow key={classData.id}>
                 <TableCell>{classData.name}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpen(classData)}>Edit</Button>
-                  <Button onClick={() => handleDelete(classData.id)}>Delete</Button>
+                  <Button onClick={() => handleOpen(classData)}>{t('edit')}</Button>
+                  <Button onClick={() => handleDelete(classData.id)}>{t('delete')}</Button>
                 </TableCell>
               </TableRow>
             ))}

@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 function Exams() {
-  return <h1>Exams</h1>;
+  const { t } = useTranslation();
+  return <h1>{t('exams')}</h1>;
 }
 
 export default Exams;

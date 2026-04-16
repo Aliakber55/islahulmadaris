@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Drawer, List, ListItem, ListItemText, ListItemIcon, Button } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SchoolIcon from '@mui/icons-material/School';
@@ -7,23 +8,24 @@ import PeopleIcon from '@mui/icons-material/People';
 import BookIcon from '@mui/icons-material/Book';
 import GradeIcon from '@mui/icons-material/Grade';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import ClassIcon from '@mui/icons-material/Class'; // Import the Class icon
+import ClassIcon from '@mui/icons-material/Class';
 import { getAuth, signOut } from 'firebase/auth';
 
 const drawerWidth = 240;
 
-const navItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-  { text: 'Madaris', icon: <SchoolIcon />, path: '/madaris' },
-  { text: 'Classes', icon: <ClassIcon />, path: '/classes' }, // Add the Classes link
-  { text: 'Students', icon: <PeopleIcon />, path: '/students' },
-  { text: 'Exams', icon: <BookIcon />, path: '/exams' },
-  { text: 'Marks', icon: <GradeIcon />, path: '/marks' },
-  { text: 'Reports', icon: <AssessmentIcon />, path: '/reports' },
-];
-
 function Sidebar() {
   const auth = getAuth();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { text: t('dashboard'), icon: <DashboardIcon />, path: '/' },
+    { text: t('madaris'), icon: <SchoolIcon />, path: '/madaris' },
+    { text: t('classes'), icon: <ClassIcon />, path: '/classes' },
+    { text: t('students'), icon: <PeopleIcon />, path: '/students' },
+    { text: t('exams'), icon: <BookIcon />, path: '/exams' },
+    { text: t('marks'), icon: <GradeIcon />, path: '/marks' },
+    { text: t('reports'), icon: <AssessmentIcon />, path: '/reports' },
+  ];
 
   const handleLogout = () => {
     signOut(auth).then(() => {
@@ -55,7 +57,7 @@ function Sidebar() {
         ))}
       </List>
       <Button variant="contained" onClick={handleLogout} sx={{ m: 2 }}>
-        Logout
+        {t('logout')}
       </Button>
     </Drawer>
   );
