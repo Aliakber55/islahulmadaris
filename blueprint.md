@@ -18,16 +18,18 @@ Islah-ul-Madaris is a web application designed to streamline the management of m
 *   **Internationalization (i18n):** The application supports both English and Urdu languages, allowing users to switch between them. This is implemented using the `react-i18next` and `i18next` libraries.
 *   **Reusable `CrudTable` Component:** To reduce code duplication and improve maintainability, a generic `CrudTable` component was created. This component encapsulates the common logic for CRUD (Create, Read, Update, Delete) operations, including form handling (with support for text and select inputs) and data display in a table. It is used in the `Madaris`, `Classes`, and `Students` pages.
 
-## Current Task: Firebase Authentication Fix and Deployment
+## Current Task: Professional Sidebar Design
 
-I have resolved a persistent "auth/configuration-not-found" error that was occurring during user signup. The issue was due to a misconfiguration in the local development environment's connection to Firebase services.
+I have updated the sidebar with a more professional and modern design. It now features a subtle gradient background, softer text and icon colors, and a clear visual distinction for the active link, making it more visually appealing and easier to read.
 
 ### Plan
 
-1.  **Reinstall Dependencies:** Reinstalled all necessary npm packages, including `firebase`, `@mui/material`, `@emotion/react`, and `@emotion/styled` to ensure all dependencies are correct and up-to-date.
-2.  **Verify Firebase Configuration:** Double-checked the Firebase configuration in `src/services/firebase.js` to ensure all keys and project details were correct.
-3.  **Rebuild Application:** Performed a fresh build of the application using `npm run build` to ensure all the latest code changes were compiled correctly.
-4.  **Reconfigure and Redeploy:** Re-created the `firebase.json` file with the correct hosting settings and redeployed the application to Firebase Hosting.
-5.  **Configured Local Firebase Emulation:** Correctly configured the `.idx/mcp.json` file to enable proper local emulation of Firebase services, which was the root cause of the "auth/configuration-not-found" error.
-6.  **Update Blueprint:** I am now updating this `blueprint.md` file to reflect these latest changes.
-7.  **Commit and Push:** I will now commit all the changes to the git repository and push them to the remote.
+1.  **Read Sidebar Component:** I read the content of the `src/components/Sidebar.jsx` file to understand its current structure and styling.
+2.  **Update Sidebar Component:** I modified the `Sidebar.jsx` file to include the new design. This involved the following changes:
+    *   **Background:** Replaced the solid dark blue background with a linear gradient from `#1e3c72` to `#2a5298`.
+    *   **Text and Icon Colors:** Changed the color of the text and icons to a softer `#e0e0e0` for better readability.
+    *   **Active Link Styling:** Added a background color, a left border, and extra padding to the active link to make it more prominent.
+    *   **Hover Effect:** Implemented a subtle background color change on hover to provide visual feedback to the user.
+    *   **Logo and Title:** Added a border to the bottom of the logo and title section to separate it from the navigation links.
+3.  **Update Blueprint:** I am now updating this `blueprint.md` file to reflect these latest changes.
+4.  **Commit and Push:** I will now commit all the changes to the git repository and push them to the remote.
