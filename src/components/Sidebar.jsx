@@ -40,7 +40,7 @@ function Sidebar() {
     >
       <List>
         {navItems.map((item) => (
-          <ListItem button component={NavLink} to={item.path} key={item.text} end={item.path === '/'}>
+          <ListItem button component={NavLink} to={item.path} key={item.text} end>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
