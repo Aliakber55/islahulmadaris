@@ -18,18 +18,22 @@ Islah-ul-Madaris is a web application designed to streamline the management of m
 *   **Internationalization (i18n):** The application supports both English and Urdu languages, allowing users to switch between them. This is implemented using the `react-i18next` and `i18next` libraries.
 *   **Reusable `CrudTable` Component:** To reduce code duplication and improve maintainability, a generic `CrudTable` component was created. This component encapsulates the common logic for CRUD (Create, Read, Update, Delete) operations, including form handling (with support for text and select inputs) and data display in a table. It is used in the `Madaris`, `Classes`, and `Students` pages.
 
-## Current Task: Professional Sidebar Design
+## Current Task: Dashboard UI/UX Enhancement
 
-I have updated the sidebar with a more professional and modern design. It now features a subtle gradient background, softer text and icon colors, and a clear visual distinction for the active link, making it more visually appealing and easier to read.
+I have performed a significant update on the main dashboard to improve its layout, functionality, and visual appeal based on user feedback.
 
-### Plan
+### Plan & Changes
 
-1.  **Read Sidebar Component:** I read the content of the `src/components/Sidebar.jsx` file to understand its current structure and styling.
-2.  **Update Sidebar Component:** I modified the `Sidebar.jsx` file to include the new design. This involved the following changes:
-    *   **Background:** Replaced the solid dark blue background with a linear gradient from `#1e3c72` to `#2a5298`.
-    *   **Text and Icon Colors:** Changed the color of the text and icons to a softer `#e0e0e0` for better readability.
-    *   **Active Link Styling:** Added a background color, a left border, and extra padding to the active link to make it more prominent.
-    *   **Hover Effect:** Implemented a subtle background color change on hover to provide visual feedback to the user.
-    *   **Logo and Title:** Added a border to the bottom of the logo and title section to separate it from the navigation links.
-3.  **Update Blueprint:** I am now updating this `blueprint.md` file to reflect these latest changes.
-4.  **Commit and Push:** I will now commit all the changes to the git repository and push them to the remote.
+1.  **Read Original Files:** I started by reading the `Dashboard.jsx` and translation files (`en/translation.json`, `ur/translation.json`) to understand the existing implementation.
+2.  **Fix Layout and Style Issues:** I addressed several UI bugs reported by the user:
+    *   **Restored Welcome Banner:** Fixed an issue where the main welcome banner was not appearing. This was caused by a missing translation key for the banner's image, which I have now added.
+    *   **Corrected Quick Actions:** The "Quick Actions" buttons were overlapping. I replaced the container with a Material-UI `Grid` to ensure proper alignment and spacing, making them fully responsive.
+    *   **Improved Recent Students Table:** The table for recent students was poorly formatted. I have adjusted the styling to ensure it is clean, aligned, and readable within its container.
+    *   **Added Footer:** A proper footer with the current copyright year and a top border has been added to the bottom of the page.
+3.  **Implement Landscape Chart Cards:** The user requested the chart cards be changed from a vertical (portrait) to a horizontal (landscape) orientation.
+    *   I modified the `ChartCard` component to use a `row` flex-direction.
+    *   I adjusted the internal layout to place the title/icon and the chart side-by-side.
+    *   To accommodate the wider cards, I changed the grid layout to display two cards per row on larger screens (`md={6}`), improving the overall visual balance of the dashboard.
+4.  **Add Internationalization (i18n) Support:** To support the new UI elements, I added the following keys to both the English and Urdu translation files: `quick_actions`, `recent_students`, `view_reports`, and `quran_icon`.
+5.  **Update Blueprint:** I am now updating this `blueprint.md` file to document these changes.
+6.  **Commit and Push:** I will now commit and push all the changes to the Git repository.
