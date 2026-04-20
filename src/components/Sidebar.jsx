@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Drawer, List, ListItem, ListItemText, ListItemIcon, Button } from '@mui/material';
+import { Drawer, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
@@ -9,12 +9,10 @@ import BookIcon from '@mui/icons-material/Book';
 import GradeIcon from '@mui/icons-material/Grade';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ClassIcon from '@mui/icons-material/Class';
-import { getAuth, signOut } from 'firebase/auth';
 
 const drawerWidth = 240;
 
 function Sidebar() {
-  const auth = getAuth();
   const { t } = useTranslation();
 
   const navItems = [
@@ -26,14 +24,6 @@ function Sidebar() {
     { text: t('marks'), icon: <GradeIcon />, path: '/marks' },
     { text: t('reports'), icon: <AssessmentIcon />, path: '/reports' },
   ];
-
-  const handleLogout = () => {
-    signOut(auth).then(() => {
-      // Sign-out successful.
-    }).catch((error) => {
-      // An error happened.
-    });
-  };
 
   return (
     <Drawer
@@ -50,15 +40,12 @@ function Sidebar() {
     >
       <List>
         {navItems.map((item) => (
-          <ListItem button component={NavLink} to={item.path} key={item.text}>
+          <ListItem button component={NavLink} to={item.path} key={item.text} end={item.path === '/'}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
       </List>
-      <Button variant="contained" onClick={handleLogout} sx={{ m: 2 }}>
-        {t('logout')}
-      </Button>
     </Drawer>
   );
 }
