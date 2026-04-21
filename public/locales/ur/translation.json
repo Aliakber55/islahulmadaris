@@ -13,7 +13,7 @@
   "name": "نام",
   "location": "مقام",
   "contact": "رابطہ",
-  "actions": "اعمال",
+  "actions": "کاروائیاں",
   "edit": "ترمیم",
   "delete": "حذف کریں",
   "filter_by_madrasa": "مدرسہ کے لحاظ سے فلٹر کریں",
@@ -26,8 +26,8 @@
   "roll_no": "رول نمبر",
   "add_class": "کلاس شامل کریں",
   "edit_class": "کلاس میں ترمیم کریں",
-  "quick_actions": "فوری کاروائیاں",
-  "recent_students": "حالیہ طلباء",
+  "Quick Actions": "فوری کاروائیاں",
+  "Recent Students": "حالیہ طلباء",
   "view_reports": "رپورٹس دیکھیں",
   "quran_icon": "قرآن آئیکن"
 }

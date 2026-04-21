@@ -1,83 +1,57 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography, Paper, Grid, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Box, Typography, Paper, Grid, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
 import BookIcon from '@mui/icons-material/Book';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import AddIcon from '@mui/icons-material/Add';
-import { Link } from 'react-router-dom';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-
-// Dummy data for mini charts
-const chartData1 = [{uv: 300}, {uv: 400}, {uv: 200}, {uv: 500}, {uv: 450}, {uv: 600}, {uv: 550}];
-const chartData2 = [{uv: 1200}, {uv: 1100}, {uv: 1500}, {uv: 1300}, {uv: 1600}, {uv: 1400}, {uv: 1700}];
-const chartData3 = [{uv: 50}, {uv: 40}, {uv: 60}, {uv: 55}, {uv: 70}, {uv: 65}, {uv: 80}];
-const chartData4 = [{uv: 85}, {uv: 88}, {uv: 82}, {uv: 90}, {uv: 89}, {uv: 92}, {uv: 95}];
+import { Link } from 'react-router-dom';
+import { alpha } from '@mui/system';
 
 const kFormatter = (num) => {
-  return Math.abs(num) > 999 ? Math.sign(num)*((Math.abs(num)/1000).toFixed(1)) + 'k' : Math.sign(num)*Math.abs(num)
-}
+  return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num) / 1000).toFixed(1)) + 'k' : Math.sign(num) * Math.abs(num);
+};
 
-// Dummy data for recent students - replace with actual data
-const recentStudents = [
-  { id: 1, name: 'کاشف علی', fatherName: 'محمد علی', class: 'حفظ', madrasa: 'مدرسہ نور القرآن' },
-  { id: 2, name: 'عمران خان', fatherName: 'اکرم خان', class: 'ناظرہ', madrasa: 'مدرسہ فیضانِ مدینہ' },
-  { id: 3, name: 'سلمان احمد', fatherName: 'فاروق احمد', class: 'عالم کورس', madrasa: 'جامعۃ الرشید' },
-  { id: 4, name: 'زبیر قریشی', fatherName: 'عبداللہ قریشی', class: 'حفظ', madrasa: 'مدرسہ نور القرآن' },
-];
+function StatCard({ icon, title, metric, insight }) {
+  const theme = useTheme();
+  const isPositive = insight.startsWith('+');
 
-function StatCard({ title, icon, mainMetric, insight, insightIcon, chartData, color }) {
   return (
-    <Paper 
-      elevation={0}
-      sx={{
-        p: 3,
-        borderRadius: '16px',
-        height: '100%',
-        border: '1px solid #e0e0e0',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-        '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-        }
-      }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Box>
-          {React.cloneElement(icon, { sx: { ...icon.props.sx, fontSize: 32, color: color, mb: 2 } })}
-          <Typography variant="h4" component="div" sx={{ fontWeight: 'bold' }}>
-            {kFormatter(mainMetric)}
-          </Typography>
-          <Typography variant="subtitle2" color="text.secondary">
-            {title}
-          </Typography>
+    <Paper sx={{
+      p: 3, 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'space-between',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      '&:hover': {
+        transform: 'translateY(-4px)',
+        boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.1)}`,
+      }
+    }}>
+      <Box>
+        <Box sx={{ 
+          width: 48, 
+          height: 48, 
+          borderRadius: '50%', 
+          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          mb: 2 
+        }}>
+          {React.cloneElement(icon, { sx: { color: theme.palette.primary.main } })}
         </Box>
-        <Box sx={{ height: 60, width: '50%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
-                  <defs>
-                      <linearGradient id={`colorUv-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
-                          <stop offset="95%" stopColor={color} stopOpacity={0}/>
-                      </linearGradient>
-                  </defs>
-                  <Tooltip 
-                    contentStyle={{ background: 'white', border: '1px solid #ddd', borderRadius: '8px' }} 
-                    labelStyle={{ fontWeight: 'bold' }}
-                  />
-                  <Area type="monotone" dataKey="uv" stroke={color} strokeWidth={2} fill={`url(#colorUv-${color.replace('#','')})`} />
-              </AreaChart>
-            </ResponsiveContainer>
-        </Box>
+        <Typography variant="h4" component="div" sx={{fontWeight: 'bold'}}>{kFormatter(metric)}</Typography>
+        <Typography variant="subtitle2" sx={{ textTransform: 'capitalize', mt: 0.5, color: 'text.secondary' }}>{title}</Typography>
       </Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, color: insight.startsWith('+') ? 'success.main' : 'error.main' }}>
-        {insightIcon}
-        <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 'medium' }}>
-          {insight}
+      <Box sx={{ display: 'flex', alignItems: 'center', color: isPositive ? '#4caf50' : '#f44336', mt: 2 }}>
+        {isPositive ? <ArrowUpwardIcon sx={{fontSize: '1rem'}}/> : <ArrowDownwardIcon sx={{fontSize: '1rem'}}/>}
+        <Typography variant="caption" sx={{ ml: 0.5, fontWeight: 'bold' }}>
+          {insight.substring(1)} vs last month
         </Typography>
       </Box>
     </Paper>
@@ -86,25 +60,49 @@ function StatCard({ title, icon, mainMetric, insight, insightIcon, chartData, co
 
 function Dashboard() {
   const { t } = useTranslation();
-
+  const theme = useTheme();
+  
   const statCards = [
-    { title: t('madaris'), icon: <SchoolIcon />, mainMetric: 400, insight: '+5 this month', insightIcon: <ArrowUpwardIcon sx={{fontSize: '1rem'}}/>, chartData: chartData1, color: '#3f51b5' },
-    { title: t('students'), icon: <PeopleIcon />, mainMetric: 10500, insight: '+12% this month', insightIcon: <ArrowUpwardIcon sx={{fontSize: '1rem'}}/>, chartData: chartData2, color: '#4caf50' },
-    { title: t('exams'), icon: <BookIcon />, mainMetric: 2400, insight: '-2% from last week', insightIcon: <ArrowDownwardIcon sx={{fontSize: '1rem'}}/>, chartData: chartData3, color: '#ff9800' },
-    { title: t('reports'), icon: <AssessmentIcon />, mainMetric: 4000, insight: '+1.5% pass rate', insightIcon: <ArrowUpwardIcon sx={{fontSize: '1rem'}}/>, chartData: chartData4, color: '#f44336' },
+    { title: t('madaris'), icon: <SchoolIcon />, metric: 400, insight: '+5%' },
+    { title: t('students'), icon: <PeopleIcon />, metric: 10500, insight: '+12%' },
+    { title: t('exams'), icon: <BookIcon />, metric: 2400, insight: '-2%' },
+    { title: t('reports'), icon: <AssessmentIcon />, metric: 4000, insight: '+1.5%' },
+  ];
+
+  const quickActions = [
+      { text: t('add_student'), path: '/students/new', icon: <AddIcon/>, variant: 'contained' },
+      { text: t('add_class'), path: '/classes/new', icon: <AddIcon/>, variant: 'outlined' },
+      { text: t('add_madrasa'), path: '/madaris/new', icon: <AddIcon/>, variant: 'outlined' },
+  ];
+
+  const recentStudents = [
+    { id: 1, name: 'کاشف علی', fatherName: 'محمد علی', class: 'حفظ', madrasa: 'مدرسہ نور القرآن' },
+    { id: 2, name: 'عمران خان', fatherName: 'اکرم خان', class: 'ناظرہ', madrasa: 'مدرسہ فیضانِ مدینہ' },
+    { id: 3, name: 'سلمان احمد', fatherName: 'فاروق احمد', class: 'عالم کورس', madrasa: 'جامعۃ الرشید' },
+    { id: 4, name: 'زبیر قریشی', fatherName: 'عبداللہ قریشی', class: 'حفظ', madrasa: 'مدرسہ نور القرآن' },
+    { id: 5, name: 'بلال صدیقی', fatherName: 'یوسف صدیقی', class: 'ناظرہ', madrasa: 'مدرسہ فیضانِ مدینہ' },
   ];
 
   return (
-    <Box>
-      {/* Welcome Banner */}
-      <Paper elevation={3} sx={{ p: 3, mb: 4, background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', borderRadius: '12px' }}>
-         <img src="https://i.pinimg.com/originals/5a/0f/73/5a0f7354f3e6eb483539959341498059.png" alt={t('quran_icon')} style={{ width: '60px', marginBottom: '16px' }} />
-        <Typography variant="h5" component="h2" sx={{ mb: 1, fontFamily: "'Jameel Noori Nastaleeq', serif", fontWeight: 'bold' }}>دین کی تعلیم سیکھو اور سکھاؤ</Typography>
-        <Typography variant="body1" sx={{ textAlign: 'center', fontFamily: "'Jameel Noori Nastaleeq', serif" }}>تم میں سے بہترین وہ ہے جو قرآن سیکھے اور دوسروں کو سکھائے۔ (صحیح البخاری)</Typography>
+    <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, flexGrow: 1 }}>
+      <Paper sx={{ 
+        py: { xs: 5, md: 8 },
+        px: { xs: 2, md: 4 },
+        mb: 4, 
+        background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${alpha(theme.palette.secondary.main, 0.8)} 100%)`,
+        color: '#fff',
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        textAlign: 'center',
+        boxShadow: `0 8px 32px ${alpha(theme.palette.primary.dark, 0.3)}`
+      }}>
+         <img src="https://i.pinimg.com/originals/5a/0f/73/5a0f7354f3e6eb483539959341498059.png" alt={t('quran_icon')} style={{ width: '80px', marginBottom: '24px', filter: 'brightness(0) invert(1)' }} />
+        <Typography component="h1" sx={{ mb: 1.5, fontFamily: "'Noto Nastaliq Urdu', serif", fontSize: { xs: '2.2rem', md: '2.8rem' }, fontWeight: 'bold', color: 'white' }}>دین کی تعلیم سیکھو اور سکھاؤ</Typography>
+        <Typography variant="body1" sx={{ fontFamily: "'Noto Nastaliq Urdu', serif", fontSize: { xs: '1.1rem', md: '1.3rem' }, lineHeight: 1.8, color: 'white', opacity: 0.9, maxWidth: '600px' }}>تم میں سے بہترین وہ ہے جو قرآن سیکھے اور دوسروں کو سکھائے۔ (صحیح البخاری)</Typography>
       </Paper>
 
-      {/* Stats Grid */}
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
         {statCards.map(card => (
           <Grid item xs={12} sm={6} md={3} key={card.title}>
             <StatCard {...card} />
@@ -112,39 +110,47 @@ function Dashboard() {
         ))}
       </Grid>
       
-      {/* Quick Actions & Recent Students */}
-      <Grid container spacing={4} sx={{ mt: 1 }}>
-        <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ p: 2, borderRadius: '12px', height: '100%' }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>{t('quick_actions')}</Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} lg={4}>
+          <Paper sx={{ p: { xs: 2, md: 3 }, height: '100%' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>{t('Quick Actions')}</Typography>
             <Grid container spacing={2}>
-                <Grid item xs={12}><Button component={Link} to="/students/new" variant="contained" startIcon={<AddIcon />} fullWidth>{t('add_student')}</Button></Grid>
-                <Grid item xs={12}><Button component={Link} to="/classes/new" variant="contained" startIcon={<AddIcon />} fullWidth>{t('add_class')}</Button></Grid>
-                <Grid item xs={12}><Button component={Link} to="/madaris/new" variant="contained" startIcon={<AddIcon />} fullWidth>{t('add_madrasa')}</Button></Grid>
-                <Grid item xs={12}><Button component={Link} to="/reports" variant="contained" color="secondary" startIcon={<AssessmentIcon />} fullWidth>{t('view_reports')}</Button></Grid>
+                {quickActions.map(action => (
+                    <Grid item xs={12} key={action.text}>
+                        <Button 
+                            component={Link} 
+                            to={action.path} 
+                            variant={action.variant}
+                            color={action.variant === 'contained' ? 'primary' : 'outlined'}
+                            startIcon={action.icon} 
+                            fullWidth
+                        >
+                            {action.text}
+                        </Button>
+                    </Grid>
+                ))}
             </Grid>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={8}>
-          <Paper elevation={3} sx={{ p: 2, borderRadius: '12px', height: '100%' }}>
-             <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>{t('recent_students')}</Typography>
+        <Grid item xs={12} lg={8}>
+          <Paper sx={{ p: { xs: 2, md: 3 }, height: '100%' }}>
+             <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>{t('Recent Students')}</Typography>
             <TableContainer>
-              <Table stickyHeader>
+              <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('name')}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('father_name')}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('class')}</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>{t('madrasa')}</TableCell>
+                    {['name', 'father_name', 'class', 'madrasa'].map(head => (
+                      <TableCell key={head} sx={{ fontWeight: 600, color: 'text.primary', py: 1.5, borderBottom: `2px solid ${theme.palette.divider}` }}>{t(head)}</TableCell>
+                    ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {recentStudents.map((student) => (
-                    <TableRow key={student.id} hover>
-                      <TableCell>{student.name}</TableCell>
-                      <TableCell>{student.fatherName}</TableCell>
-                      <TableCell>{student.class}</TableCell>
-                      <TableCell>{student.madrasa}</TableCell>
+                    <TableRow key={student.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell sx={{ py: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}>{student.name}</TableCell>
+                      <TableCell sx={{ py: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}>{student.fatherName}</TableCell>
+                      <TableCell sx={{ py: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}>{student.class}</TableCell>
+                      <TableCell sx={{ py: 2.5, borderBottom: `1px solid ${theme.palette.divider}` }}>{student.madrasa}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -153,13 +159,6 @@ function Dashboard() {
           </Paper>
         </Grid>
       </Grid>
-      
-      {/* Footer */}
-      <Box component="footer" sx={{ mt: 4, py: 2, borderTop: '1px solid #e0e0e0', backgroundColor: 'white', textAlign: 'center', color: 'text.secondary' }}>
-        <Typography variant="body2">
-          © {new Date().getFullYear()} Islah-ul-Madaris. All Rights Reserved.
-        </Typography>
-      </Box>
     </Box>
   );
 }
